@@ -1,0 +1,52 @@
+.template-panel {
+  background-color: #252526;
+  border-top: 1px solid #3c3c3c;
+  overflow-y: auto;
+  max-height: 40vh;
+  padding: 4px 0;
+}
+
+.template-group {
+  display: flex;
+  align-items: center;
+  padding: 2px 8px;
+  gap: 6px;
+}
+
+.template-group-label {
+  color: #888;
+  font-size: 11px;
+  white-space: nowrap;
+  min-width: 60px;
+  font-family: sans-serif;
+}
+
+.template-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 6px;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.template-btn {
+  background-color: #37373d;
+  color: #cccccc;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+.template-btn:active {
+  background-color: #094771;
+  border-color: #007acc;
+}
