@@ -6,13 +6,9 @@ export const TEMPLATES: Template[] = [
     label: 'Main',
     category: 'scaffold',
     insertion: { type: 'cursor' },
-    body: `use std::io::{self, BufRead, Write, BufWriter};
+    body: `use proconio::input;
 
 fn main() {
-    let stdin = io::stdin();
-    let stdout = io::stdout();
-    let mut out = BufWriter::new(stdout.lock());
-
     // <input>
 
     // <helpers>
@@ -24,13 +20,12 @@ fn main() {
     label: 'Read ints',
     category: 'io',
     insertion: { type: 'anchor', anchor: 'input' },
-    body: `    let mut line = String::new();
-    stdin.lock().read_line(&mut line).unwrap();
-    let {{vars}}: Vec<i64> = line.split_whitespace()
-        .map(|x| x.parse().unwrap())
-        .collect();`,
+    body: `    input! {
+        {{vars}}: [i64; {{n}}],
+    }`,
     placeholders: [
       { name: 'vars', kind: 'identifier', defaultValue: 'vals' },
+      { name: 'n', kind: 'identifier', defaultValue: 'n' },
     ],
   },
   {
@@ -38,16 +33,10 @@ fn main() {
     label: 'Read N lines',
     category: 'io',
     insertion: { type: 'anchor', anchor: 'input' },
-    body: `    let {{n}}: usize = {
-        let mut s = String::new();
-        stdin.lock().read_line(&mut s).unwrap();
-        s.trim().parse().unwrap()
-    };
-    let {{rows}}: Vec<Vec<i64>> = (0..{{n}}).map(|_| {
-        let mut s = String::new();
-        stdin.lock().read_line(&mut s).unwrap();
-        s.split_whitespace().map(|x| x.parse().unwrap()).collect()
-    }).collect();`,
+    body: `    input! {
+        {{n}}: usize,
+        {{rows}}: [[i64]; {{n}}],
+    }`,
     placeholders: [
       { name: 'n', kind: 'identifier', defaultValue: 'n' },
       { name: 'rows', kind: 'identifier', defaultValue: 'rows' },
@@ -111,10 +100,10 @@ fn main() {
   },
   {
     id: 'println_val',
-    label: 'writeln!',
+    label: 'println!',
     category: 'io',
     insertion: { type: 'cursor' },
-    body: `    writeln!(out, "{}", {{val}}).unwrap();`,
+    body: `    println!("{}", {{val}});`,
     placeholders: [
       { name: 'val', kind: 'identifier', defaultValue: 'ans' },
     ],
