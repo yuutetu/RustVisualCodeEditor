@@ -4,6 +4,7 @@
   overflow-y: auto;
   max-height: 40vh;
   padding: 4px 0;
+  padding-bottom: calc(4px + env(safe-area-inset-bottom));
 }
 
 .template-group {

@@ -8,11 +8,13 @@ import type { Template } from './templates/types';
 import { insertAtCursor, insertAtAnchor } from './engine/insertion';
 import { useAutoSave } from './hooks/useAutoSave';
 import { usePlaceholderEdit } from './hooks/usePlaceholderEdit';
+import { useVisualViewport } from './hooks/useVisualViewport';
 import './App.css';
 
 export default function App() {
   const [code, setCode] = useState('');
   const [cursorPos, setCursorPos] = useState(0);
+  const viewportHeight = useVisualViewport();
 
   useAutoSave(code, setCode);
 
@@ -44,8 +46,10 @@ export default function App() {
     setCursorPos(0);
   }, []);
 
+  const appStyle = viewportHeight ? { height: `${viewportHeight}px` } : undefined;
+
   return (
-    <div className="app">
+    <div className="app" style={appStyle}>
       <Toolbar code={code} onClear={handleClear} />
       <Editor
         code={code}

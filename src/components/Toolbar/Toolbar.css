@@ -3,7 +3,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
-  height: 48px;
+  padding-top: env(safe-area-inset-top);
+  height: calc(48px + env(safe-area-inset-top));
   background-color: #323233;
   border-bottom: 1px solid #3c3c3c;
   flex-shrink: 0;
@@ -33,10 +34,15 @@
   min-width: 64px;
   touch-action: manipulation;
   font-family: sans-serif;
+  transition: background-color 0.2s ease;
 }
 
 .toolbar-btn:active {
   opacity: 0.8;
+}
+
+.toolbar-btn-copied {
+  background-color: #1a7a4a;
 }
 
 .toolbar-btn-danger {
