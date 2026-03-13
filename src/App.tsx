@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Editor } from './components/Editor/Editor';
 import { TemplatePanel } from './components/TemplatePanel/TemplatePanel';
 import { PlaceholderModal } from './components/PlaceholderModal/PlaceholderModal';
@@ -14,7 +14,8 @@ import './App.css';
 export default function App() {
   const [code, setCode] = useState('');
   const [cursorPos, setCursorPos] = useState(0);
-  const viewportHeight = useVisualViewport();
+  const { height: viewportHeight, keyboardVisible } = useVisualViewport();
+  const editorRef = useRef<HTMLTextAreaElement>(null);
 
   useAutoSave(code, setCode);
 
@@ -34,6 +35,20 @@ export default function App() {
       setCode(result.newCode);
       setCursorPos(result.newCursorPos);
 
+      // 挿入位置までエディタをスクロール
+      requestAnimationFrame(() => {
+        const el = editorRef.current;
+        if (!el) return;
+        el.selectionStart = result.newCursorPos;
+        el.selectionEnd = result.newCursorPos;
+        el.focus();
+        // 挿入行をビューポート中央付近にスクロール
+        const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 22;
+        const linesBefore = result.newCode.slice(0, result.newCursorPos).split('\n').length - 1;
+        const scrollTarget = linesBefore * lineHeight - el.clientHeight / 2;
+        el.scrollTop = Math.max(0, scrollTarget);
+      });
+
       if (template.placeholders.length > 0) {
         startEditing(template);
       }
@@ -52,11 +67,12 @@ export default function App() {
     <div className="app" style={appStyle}>
       <Toolbar code={code} onClear={handleClear} />
       <Editor
+        ref={editorRef}
         code={code}
         onChange={setCode}
         onCursorChange={setCursorPos}
       />
-      <TemplatePanel templates={TEMPLATES} onInsert={handleInsert} />
+      <TemplatePanel templates={TEMPLATES} onInsert={handleInsert} keyboardVisible={keyboardVisible} />
       {isOpen && current && (
         <PlaceholderModal
           placeholder={current}
