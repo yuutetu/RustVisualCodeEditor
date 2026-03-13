@@ -13,7 +13,7 @@ export function Toolbar({ onClear, code }: ToolbarProps) {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 3000);
     } catch {
       // fallback for environments without clipboard API
       const el = document.createElement('textarea');
@@ -23,7 +23,7 @@ export function Toolbar({ onClear, code }: ToolbarProps) {
       document.execCommand('copy');
       document.body.removeChild(el);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), 3000);
     }
   }, [code]);
 
@@ -38,11 +38,11 @@ export function Toolbar({ onClear, code }: ToolbarProps) {
       <span className="toolbar-title">Rust Editor</span>
       <div className="toolbar-actions">
         <button
-          className="toolbar-btn"
+          className={`toolbar-btn${copied ? ' toolbar-btn-copied' : ''}`}
           onClick={handleCopy}
           type="button"
         >
-          {copied ? 'Copied!' : 'Copy'}
+          {copied ? '✓ コピー完了' : 'Copy'}
         </button>
         <button
           className="toolbar-btn toolbar-btn-danger"
