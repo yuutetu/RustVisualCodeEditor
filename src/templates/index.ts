@@ -1,6 +1,7 @@
 import type { Template } from './types';
 
 export const TEMPLATES: Template[] = [
+  // ── Scaffold ──────────────────────────────────────────────
   {
     id: 'main_scaffold',
     label: 'Main',
@@ -14,6 +15,37 @@ fn main() {
     // <helpers>
 }`,
     placeholders: [],
+  },
+
+  // ── I/O ───────────────────────────────────────────────────
+  {
+    id: 'read_single',
+    label: 'Read 1',
+    category: 'io',
+    insertion: { type: 'anchor', anchor: 'input' },
+    body: `    input! {
+        {{var}}: {{type}},
+    }`,
+    placeholders: [
+      { name: 'var', kind: 'identifier', defaultValue: 'n' },
+      { name: 'type', kind: 'identifier', defaultValue: 'i64' },
+    ],
+  },
+  {
+    id: 'read_two',
+    label: 'Read 2',
+    category: 'io',
+    insertion: { type: 'anchor', anchor: 'input' },
+    body: `    input! {
+        {{a}}: {{ta}},
+        {{b}}: {{tb}},
+    }`,
+    placeholders: [
+      { name: 'a', kind: 'identifier', defaultValue: 'a' },
+      { name: 'ta', kind: 'identifier', defaultValue: 'i64' },
+      { name: 'b', kind: 'identifier', defaultValue: 'b' },
+      { name: 'tb', kind: 'identifier', defaultValue: 'i64' },
+    ],
   },
   {
     id: 'read_line_ints',
@@ -43,6 +75,28 @@ fn main() {
     ],
   },
   {
+    id: 'println_val',
+    label: 'println!',
+    category: 'io',
+    insertion: { type: 'cursor' },
+    body: `    println!("{}", {{val}});`,
+    placeholders: [
+      { name: 'val', kind: 'identifier', defaultValue: 'ans' },
+    ],
+  },
+  {
+    id: 'println_yes_no',
+    label: 'Yes/No',
+    category: 'io',
+    insertion: { type: 'cursor' },
+    body: `    println!("{}", if {{cond}} { "Yes" } else { "No" });`,
+    placeholders: [
+      { name: 'cond', kind: 'identifier', defaultValue: 'ans' },
+    ],
+  },
+
+  // ── Collections ───────────────────────────────────────────
+  {
     id: 'vec_new',
     label: 'Vec new',
     category: 'collections',
@@ -52,26 +106,6 @@ fn main() {
       { name: 'vec_name', kind: 'identifier', defaultValue: 'v' },
       { name: 'elem_type', kind: 'identifier', defaultValue: 'i64' },
       { name: 'n', kind: 'identifier', defaultValue: 'n' },
-    ],
-  },
-  {
-    id: 'sort_asc',
-    label: 'Sort ↑',
-    category: 'algorithm',
-    insertion: { type: 'cursor' },
-    body: `    {{vec_name}}.sort();`,
-    placeholders: [
-      { name: 'vec_name', kind: 'identifier', defaultValue: 'v' },
-    ],
-  },
-  {
-    id: 'sort_desc',
-    label: 'Sort ↓',
-    category: 'algorithm',
-    insertion: { type: 'cursor' },
-    body: `    {{vec_name}}.sort_by(|a, b| b.cmp(a));`,
-    placeholders: [
-      { name: 'vec_name', kind: 'identifier', defaultValue: 'v' },
     ],
   },
   {
@@ -99,13 +133,42 @@ fn main() {
     ],
   },
   {
-    id: 'println_val',
-    label: 'println!',
-    category: 'io',
+    id: 'vec_sum',
+    label: 'Vec sum',
+    category: 'collections',
     insertion: { type: 'cursor' },
-    body: `    println!("{}", {{val}});`,
+    body: `    let {{sum}}: i64 = {{vec_name}}.iter().sum();`,
     placeholders: [
-      { name: 'val', kind: 'identifier', defaultValue: 'ans' },
+      { name: 'sum', kind: 'identifier', defaultValue: 'sum' },
+      { name: 'vec_name', kind: 'identifier', defaultValue: 'v' },
+    ],
+  },
+
+  // ── Algorithm ─────────────────────────────────────────────
+  {
+    id: 'if_else',
+    label: 'if/else',
+    category: 'algorithm',
+    insertion: { type: 'cursor' },
+    body: `    if {{cond}} {
+        // todo
+    } else {
+        // todo
+    }`,
+    placeholders: [
+      { name: 'cond', kind: 'identifier', defaultValue: 'cond' },
+    ],
+  },
+  {
+    id: 'while_loop',
+    label: 'while',
+    category: 'algorithm',
+    insertion: { type: 'cursor' },
+    body: `    while {{cond}} {
+        // todo
+    }`,
+    placeholders: [
+      { name: 'cond', kind: 'identifier', defaultValue: 'cond' },
     ],
   },
   {
@@ -119,6 +182,62 @@ fn main() {
     placeholders: [
       { name: 'i', kind: 'identifier', defaultValue: 'i' },
       { name: 'n', kind: 'identifier', defaultValue: 'n' },
+    ],
+  },
+  {
+    id: 'sort_asc',
+    label: 'Sort ↑',
+    category: 'algorithm',
+    insertion: { type: 'cursor' },
+    body: `    {{vec_name}}.sort();`,
+    placeholders: [
+      { name: 'vec_name', kind: 'identifier', defaultValue: 'v' },
+    ],
+  },
+  {
+    id: 'sort_desc',
+    label: 'Sort ↓',
+    category: 'algorithm',
+    insertion: { type: 'cursor' },
+    body: `    {{vec_name}}.sort_by(|a, b| b.cmp(a));`,
+    placeholders: [
+      { name: 'vec_name', kind: 'identifier', defaultValue: 'v' },
+    ],
+  },
+  {
+    id: 'min_max',
+    label: 'min/max',
+    category: 'algorithm',
+    insertion: { type: 'cursor' },
+    body: `    let {{mn}} = {{a}}.min({{b}});
+    let {{mx}} = {{a}}.max({{b}});`,
+    placeholders: [
+      { name: 'mn', kind: 'identifier', defaultValue: 'mn' },
+      { name: 'mx', kind: 'identifier', defaultValue: 'mx' },
+      { name: 'a', kind: 'identifier', defaultValue: 'a' },
+      { name: 'b', kind: 'identifier', defaultValue: 'b' },
+    ],
+  },
+  {
+    id: 'binary_search',
+    label: 'BinSearch',
+    category: 'algorithm',
+    insertion: { type: 'anchor', anchor: 'helpers' },
+    body: `    // 二分探索: 条件を満たす最小のmidを返す
+    let (mut lo, mut hi) = (0i64, {{upper}});
+    while lo < hi {
+        let mid = lo + (hi - lo) / 2;
+        if {{cond}} {
+            hi = mid;
+        } else {
+            lo = mid + 1;
+        }
+    }
+    let {{ans}} = lo;`,
+    placeholders: [
+      { name: 'upper', kind: 'identifier', defaultValue: 'n' },
+      { name: 'cond', kind: 'identifier', defaultValue: 'check(mid)' },
+      { name: 'ans', kind: 'identifier', defaultValue: 'ans' },
     ],
   },
 ];

@@ -4,6 +4,7 @@ import './TemplatePanel.css';
 interface TemplatePanelProps {
   templates: Template[];
   onInsert: (template: Template) => void;
+  keyboardVisible: boolean;
 }
 
 const CATEGORY_ORDER = ['scaffold', 'io', 'collections', 'algorithm'];
@@ -14,14 +15,14 @@ const CATEGORY_LABELS: Record<string, string> = {
   algorithm: 'Algorithm',
 };
 
-export function TemplatePanel({ templates, onInsert }: TemplatePanelProps) {
+export function TemplatePanel({ templates, onInsert, keyboardVisible }: TemplatePanelProps) {
   const grouped = CATEGORY_ORDER.map(cat => ({
     cat,
     items: templates.filter(t => t.category === cat),
   })).filter(g => g.items.length > 0);
 
   return (
-    <div className="template-panel">
+    <div className={`template-panel${keyboardVisible ? ' template-panel-compact' : ''}`}>
       {grouped.map(({ cat, items }) => (
         <div key={cat} className="template-group">
           <span className="template-group-label">{CATEGORY_LABELS[cat] ?? cat}</span>
