@@ -24,22 +24,36 @@ export const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(
       [onCursorChange],
     );
 
+    // Enter キー: beforeinput で処理（Android ソフトキーボード対応）
+    const handleBeforeInput = useCallback(
+      (e: React.FormEvent<HTMLTextAreaElement>) => {
+        const inputType = (e.nativeEvent as InputEvent).inputType;
+        if (inputType !== 'insertLineBreak') return;
+
+        e.preventDefault();
+        const el = e.currentTarget;
+        const result = handleEnterKey(code, el.selectionStart, el.selectionEnd);
+        onChange(result.newCode);
+        requestAnimationFrame(() => {
+          el.selectionStart = result.newCursorPos;
+          el.selectionEnd = result.newCursorPos;
+          onCursorChange(result.newCursorPos);
+        });
+      },
+      [code, onChange, onCursorChange],
+    );
+
+    // Tab / Shift+Tab: ソフトキーボードにはTabキーがないため keydown で十分
     const handleKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key !== 'Enter' && e.key !== 'Tab') return;
+        if (e.key !== 'Tab') return;
 
         e.preventDefault();
         const el = e.currentTarget;
         const { selectionStart, selectionEnd } = el;
-
-        let result: { newCode: string; newCursorPos: number };
-        if (e.key === 'Enter') {
-          result = handleEnterKey(code, selectionStart, selectionEnd);
-        } else if (e.shiftKey) {
-          result = handleShiftTabKey(code, selectionStart, selectionEnd);
-        } else {
-          result = handleTabKey(code, selectionStart, selectionEnd);
-        }
+        const result = e.shiftKey
+          ? handleShiftTabKey(code, selectionStart, selectionEnd)
+          : handleTabKey(code, selectionStart, selectionEnd);
 
         onChange(result.newCode);
         requestAnimationFrame(() => {
@@ -60,6 +74,7 @@ export const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(
           onChange={handleChange}
           onSelect={handleSelect}
           onClick={handleSelect}
+          onBeforeInput={handleBeforeInput}
           onKeyDown={handleKeyDown}
           spellCheck={false}
           autoComplete="off"
