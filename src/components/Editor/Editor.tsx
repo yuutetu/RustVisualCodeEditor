@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from 'react';
+import { forwardRef, useCallback, useLayoutEffect, useRef } from 'react';
 import './Editor.css';
 import { handleEnterKey, handleTabKey, handleShiftTabKey } from '../../engine/indentation';
 
@@ -10,6 +10,23 @@ interface EditorProps {
 
 export const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(
   function Editor({ code, onChange, onCursorChange }, ref) {
+    const pendingCursorRef = useRef<number | null>(null);
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+    // iOS Safari では requestAnimationFrame でのカーソル位置設定が
+    // React の再レンダリング後にリセットされる場合がある。
+    // useLayoutEffect を使い、再レンダリング直後（描画前）に同期的に設定することで確実に反映させる。
+    useLayoutEffect(() => {
+      if (pendingCursorRef.current === null) return;
+      const el = textareaRef.current;
+      if (!el) return;
+      const pos = pendingCursorRef.current;
+      pendingCursorRef.current = null;
+      el.selectionStart = pos;
+      el.selectionEnd = pos;
+      onCursorChange(pos);
+    });
+
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         onChange(e.target.value);
@@ -24,7 +41,7 @@ export const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(
       [onCursorChange],
     );
 
-    // Enter キー: beforeinput で処理（Android ソフトキーボード対応）
+    // Enter キー: beforeinput で処理（Android / iOS ソフトキーボード対応）
     const handleBeforeInput = useCallback(
       (e: React.FormEvent<HTMLTextAreaElement>) => {
         const inputType = (e.nativeEvent as InputEvent).inputType;
@@ -33,14 +50,10 @@ export const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(
         e.preventDefault();
         const el = e.currentTarget;
         const result = handleEnterKey(code, el.selectionStart, el.selectionEnd);
+        pendingCursorRef.current = result.newCursorPos;
         onChange(result.newCode);
-        requestAnimationFrame(() => {
-          el.selectionStart = result.newCursorPos;
-          el.selectionEnd = result.newCursorPos;
-          onCursorChange(result.newCursorPos);
-        });
       },
-      [code, onChange, onCursorChange],
+      [code, onChange],
     );
 
     // Tab / Shift+Tab: ソフトキーボードにはTabキーがないため keydown で十分
@@ -55,20 +68,20 @@ export const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(
           ? handleShiftTabKey(code, selectionStart, selectionEnd)
           : handleTabKey(code, selectionStart, selectionEnd);
 
+        pendingCursorRef.current = result.newCursorPos;
         onChange(result.newCode);
-        requestAnimationFrame(() => {
-          el.selectionStart = result.newCursorPos;
-          el.selectionEnd = result.newCursorPos;
-          onCursorChange(result.newCursorPos);
-        });
       },
-      [code, onChange, onCursorChange],
+      [code, onChange],
     );
 
     return (
       <div className="editor-wrapper">
         <textarea
-          ref={ref}
+          ref={(el) => {
+            textareaRef.current = el;
+            if (typeof ref === 'function') ref(el);
+            else if (ref) ref.current = el;
+          }}
           className="editor-textarea"
           value={code}
           onChange={handleChange}
