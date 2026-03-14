@@ -1,5 +1,6 @@
 import { forwardRef, useCallback } from 'react';
 import './Editor.css';
+import { handleEnterKey, handleTabKey, handleShiftTabKey } from '../../engine/indentation';
 
 interface EditorProps {
   code: string;
@@ -23,6 +24,33 @@ export const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(
       [onCursorChange],
     );
 
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key !== 'Enter' && e.key !== 'Tab') return;
+
+        e.preventDefault();
+        const el = e.currentTarget;
+        const { selectionStart, selectionEnd } = el;
+
+        let result: { newCode: string; newCursorPos: number };
+        if (e.key === 'Enter') {
+          result = handleEnterKey(code, selectionStart, selectionEnd);
+        } else if (e.shiftKey) {
+          result = handleShiftTabKey(code, selectionStart, selectionEnd);
+        } else {
+          result = handleTabKey(code, selectionStart, selectionEnd);
+        }
+
+        onChange(result.newCode);
+        requestAnimationFrame(() => {
+          el.selectionStart = result.newCursorPos;
+          el.selectionEnd = result.newCursorPos;
+          onCursorChange(result.newCursorPos);
+        });
+      },
+      [code, onChange, onCursorChange],
+    );
+
     return (
       <div className="editor-wrapper">
         <textarea
@@ -32,6 +60,7 @@ export const Editor = forwardRef<HTMLTextAreaElement, EditorProps>(
           onChange={handleChange}
           onSelect={handleSelect}
           onClick={handleSelect}
+          onKeyDown={handleKeyDown}
           spellCheck={false}
           autoComplete="off"
           autoCorrect="off"
