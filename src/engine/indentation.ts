@@ -64,23 +64,43 @@ export function handleTabKey(
 }
 
 /**
- * Handle Shift+Tab key: remove up to 4 leading spaces from the current line.
+ * Handle Shift+Tab key: remove up to 4 leading spaces from the current line,
+ * or from all lines in the selection when text is selected.
  */
 export function handleShiftTabKey(
   code: string,
   selStart: number,
-  _selEnd: number,
+  selEnd: number,
 ): { newCode: string; newCursorPos: number } {
-  const lineStart = code.lastIndexOf('\n', selStart - 1) + 1;
-  const lineContent = code.slice(lineStart);
-  const spacesMatch = lineContent.match(/^( {1,4}|\t)/);
+  if (selStart === selEnd) {
+    const lineStart = code.lastIndexOf('\n', selStart - 1) + 1;
+    const lineContent = code.slice(lineStart);
+    const spacesMatch = lineContent.match(/^( {1,4}|\t)/);
 
-  if (!spacesMatch) {
-    return { newCode: code, newCursorPos: selStart };
+    if (!spacesMatch) {
+      return { newCode: code, newCursorPos: selStart };
+    }
+
+    const removed = spacesMatch[1].length;
+    const newCode = code.slice(0, lineStart) + code.slice(lineStart + removed);
+    const newCursorPos = Math.max(lineStart, selStart - removed);
+    return { newCode, newCursorPos };
   }
 
-  const removed = spacesMatch[1].length;
-  const newCode = code.slice(0, lineStart) + code.slice(lineStart + removed);
-  const newCursorPos = Math.max(lineStart, selStart - removed);
-  return { newCode, newCursorPos };
+  // Multi-line selection: unindent each line
+  const lineStart = code.lastIndexOf('\n', selStart - 1) + 1;
+  const prefix = code.slice(0, lineStart);
+  const fullSelected = code.slice(lineStart, selEnd);
+  const after = code.slice(selEnd);
+
+  const unindented = fullSelected
+    .split('\n')
+    .map(line => {
+      const match = line.match(/^( {1,4}|\t)/);
+      return match ? line.slice(match[1].length) : line;
+    })
+    .join('\n');
+
+  const newCode = prefix + unindented + after;
+  return { newCode, newCursorPos: prefix.length + unindented.length };
 }
