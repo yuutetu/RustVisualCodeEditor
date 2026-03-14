@@ -8,9 +8,11 @@
   flex-shrink: 0;
 }
 
-/* キーボード表示時: パネル高さを抑えてエディタ領域を確保 */
+/* キーボード表示時: パネル高さを固定値に抑えてエディタ領域を確保 */
+/* 25vh はwindow.innerHeight基準のためキーボード表示後も大きくなりすぎる（iPhone 12で約211px）*/
+/* 120px に固定することでエディタ領域を約+64%拡張できる */
 .template-panel-compact {
-  max-height: 25vh;
+  max-height: 120px;
 }
 
 .template-group {

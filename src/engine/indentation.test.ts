@@ -101,4 +101,18 @@ describe('handleShiftTabKey', () => {
     expect(newCode).toBe('let x = 1');
     expect(newCursorPos).toBe(0);
   });
+
+  it('unindents all lines in a multi-line selection', () => {
+    const code = '    let x = 1\n    let y = 2';
+    const { newCode, newCursorPos } = handleShiftTabKey(code, 0, code.length);
+    expect(newCode).toBe('let x = 1\nlet y = 2');
+    expect(newCursorPos).toBe(newCode.length);
+  });
+
+  it('skips lines with no indentation in a multi-line selection', () => {
+    const code = '    let x = 1\nlet y = 2';
+    const { newCode, newCursorPos } = handleShiftTabKey(code, 0, code.length);
+    expect(newCode).toBe('let x = 1\nlet y = 2');
+    expect(newCursorPos).toBe(newCode.length);
+  });
 });
