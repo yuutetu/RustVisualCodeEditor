@@ -69,7 +69,7 @@ export function handleTabKey(
 export function handleShiftTabKey(
   code: string,
   selStart: number,
-  selEnd: number,
+  _selEnd: number,
 ): { newCode: string; newCursorPos: number } {
   const lineStart = code.lastIndexOf('\n', selStart - 1) + 1;
   const lineContent = code.slice(lineStart);
